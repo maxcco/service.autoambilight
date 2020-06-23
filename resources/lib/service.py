@@ -23,102 +23,62 @@ class ScreensaverMonitor(xbmc.Monitor):
 
     def __init__(self):
         xbmc.Monitor.__init__(self)
+        self.active = False
+        self.changed = False
 
     def onScreensaverActivated(self):
         utils.log("screen saver on", xbmc.LOGDEBUG)
-        AmbilightController.screensaver_state = True
+        self.active = True
+        self.changed = True
 
     def onScreensaverDeactivated(self):
         utils.log("screen saver off", xbmc.LOGDEBUG)
-        AmbilightController.screensaver_state = False
+        self.active = False
+        self.changed = True
 
 class PlayerMonitor(xbmc.Player):
 
     def __init__(self):
         xbmc.Player.__init__(self)
+        self.content = "MOVIE"
+        self.state = "STOP"
+        self.changed = False
   
     def onPlayBackStarted(self):
         utils.log("play", xbmc.LOGDEBUG)
         if self.isPlayingVideo():
-            AmbilightController.content = "MOVIE"
-            utils.log(AmbilightController.content)
+            self.content = "MOVIE"
+            utils.log(self.content)
         else:
-            AmbilightController.content = "MUSIC"
-            utils.log(AmbilightController.content)
-        AmbilightController.player_state = "play"
+            self.content = "MUSIC"
+            utils.log(self.content)
+        self.state = "PLAY"
+        self.changed = True
 
     def onPlayBackStopped(self):
         utils.log("stop", xbmc.LOGDEBUG)
-        AmbilightController.player_state = "stop"
+        self.state = "STOP"
+        self.changed = True
 
     def onPlayBackPaused(self):
         utils.log("pause", xbmc.LOGDEBUG)
-        AmbilightController.player_state = "pause"
+        self.state = "PAUSE"
+        self.changed = True
 
     def onPlayBackResume(self):
         utils.log("resume", xbmc.LOGDEBUG)
-        AmbilightController.player_state = "play"
+        self.state = "PLAY"
+        self.changed = True
 
     def onPlayBackEnded(self):
         utils.log("end", xbmc.LOGDEBUG)
-        AmbilightController.player_state = "stop"
-
-def ambilight_switch(state):
-
-    addon = xbmcaddon.Addon(ADDON_ID)
-    ambilight_movie_mode = addon.getSetting('ambilight_movie_mode')
-    ambilight_music_mode = addon.getSetting('ambilight_music_mode')
-    ambilight_music = addon.getSetting('ambilight_music')
-
-
-    config = {}
-    config["api_version"] = addon.getSetting('api_version')
-    config['user'] = addon.getSetting('user')
-    config['pass'] = addon.getSetting('pass')
-    config['address'] = addon.getSetting('tv_ipaddress')
-    config['api_port'] = addon.getSetting('api_port')
-    config['api_protocol'] = addon.getSetting('api_protocol')
-    config['auth'] = HTTPDigestAuth(config['user'], config['pass'])
-
-    if state:
-        if AmbilightController.content == "MOVIE":
-            config['path'] = available_commands_post["ambilight_video_"+ambilight_movie_mode]['path']
-            config['body'] = available_commands_post["ambilight_video_"+ambilight_movie_mode]['body']
-            pylips.post(config)
-            utils.log(AmbilightController.content + " ambilight ON")
-
-        if ambilight_music == "True" and AmbilightController.content == "MUSIC":
-            config['path'] = available_commands_post["ambilight_audio_"+ambilight_music_mode]['path']
-            config['body'] = available_commands_post["ambilight_audio_"+ambilight_music_mode]['body']
-            pylips.post(config)
-            utils.log(AmbilightController.content + " ambilight ON")
-    else:
-        config['path'] = available_commands_post["ambilight_off"]['path']
-        config['body'] = available_commands_post["ambilight_off"]['body']
-        pylips.post(config)
-        utils.log("ambilight OFF")
-
-def ambilight_update(player_state, screensaver_state):
-
-    addon = xbmcaddon.Addon(ADDON_ID)
-    ambilight_screensaver_setting = addon.getSetting('ambilight_screensaver')
-
-    if player_state == "play":
-        ambilight_switch(True)
-    elif player_state == "pause" and not screensaver_state and ambilight_screensaver_setting == "True":
-        ambilight_switch(True)
-    else:
-        ambilight_switch(False)
-
+        self.state = "STOP"
+        self.changed = True
 
 class AmbilightController():
     screensaver_monitor = None
     player_monitor = None
-    player_state = "stop"
-    player_prev_state = "stop"
-    screensaver_state = False
-    screensaver_prev_state = False
-    content = "MOVIE"
+    addon = xbmcaddon.Addon(ADDON_ID)
 
     def __init__(self):
         self.player_monitor = PlayerMonitor()
@@ -127,12 +87,57 @@ class AmbilightController():
 
     def runProgram(self):      
         while not xbmc.abortRequested:
-            if (self.player_state != self.player_prev_state or self.screensaver_state != self.screensaver_prev_state):
-                ambilight_update(self.player_state, self.screensaver_state)
-                self.screensaver_prev_state = self.screensaver_state
-                self.player_prev_state = self.player_state
+            if (self.player_monitor.changed or self.screensaver_monitor.changed):
+                self.player_monitor.changed = False
+                self.screensaver_monitor.changed = False
+                self.ambilight_update()
             xbmc.sleep(500)
 
         #clean up monitor on exit
         del self.screensaver_monitor
         del self.player_monitor
+
+    def ambilight_update(self):
+       
+        ambilight_screensaver_setting = self.addon.getSetting('ambilight_screensaver')
+
+        if self.player_monitor.state == "PLAY":
+            self.ambilight_switch(True)
+        elif self.player_monitor.state == "PAUSE" and not self.screensaver_monitor.active and ambilight_screensaver_setting == "True":
+            self.ambilight_switch(True)
+        else:
+            self.ambilight_switch(False)
+
+    def ambilight_switch(self, state):
+
+        ambilight_movie_mode = self.addon.getSetting('ambilight_movie_mode')
+        ambilight_music_mode = self.addon.getSetting('ambilight_music_mode')
+        ambilight_music = self.addon.getSetting('ambilight_music')
+
+
+        config = {}
+        config["api_version"] = self.addon.getSetting('api_version')
+        config['user'] = self.addon.getSetting('user')
+        config['pass'] = self.addon.getSetting('pass')
+        config['address'] = self.addon.getSetting('tv_ipaddress')
+        config['api_port'] = self.addon.getSetting('api_port')
+        config['api_protocol'] = self.addon.getSetting('api_protocol')
+        config['auth'] = HTTPDigestAuth(config['user'], config['pass'])
+
+        if state:
+            if self.player_monitor.content == "MOVIE":
+                config['path'] = available_commands_post["ambilight_video_"+ambilight_movie_mode]['path']
+                config['body'] = available_commands_post["ambilight_video_"+ambilight_movie_mode]['body']
+                pylips.post(config)
+                utils.log(self.player_monitor.content + " ambilight ON")
+
+            if ambilight_music == "True" and self.player_monitor.content == "MUSIC":
+                config['path'] = available_commands_post["ambilight_audio_"+ambilight_music_mode]['path']
+                config['body'] = available_commands_post["ambilight_audio_"+ambilight_music_mode]['body']
+                pylips.post(config)
+                utils.log(self.player_monitor.content + " ambilight ON")
+        else:
+            config['path'] = available_commands_post["ambilight_off"]['path']
+            config['body'] = available_commands_post["ambilight_off"]['body']
+            pylips.post(config)
+            utils.log("ambilight OFF")

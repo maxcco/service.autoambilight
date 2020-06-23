@@ -39,6 +39,12 @@ class PlayerMonitor(xbmc.Player):
   
     def onPlayBackStarted(self):
         utils.log("play", xbmc.LOGDEBUG)
+        if self.isPlayingVideo():
+            AmbilightController.content = "MOVIE"
+            utils.log(AmbilightController.content)
+        else:
+            AmbilightController.content = "MUSIC"
+            utils.log(AmbilightController.content)
         AmbilightController.player_state = "play"
 
     def onPlayBackStopped(self):
@@ -60,7 +66,10 @@ class PlayerMonitor(xbmc.Player):
 def ambilight_switch(state):
 
     addon = xbmcaddon.Addon(ADDON_ID)
-    ambilight_mode_setting = addon.getSetting('ambilight_mode')
+    ambilight_movie_mode = addon.getSetting('ambilight_movie_mode')
+    ambilight_music_mode = addon.getSetting('ambilight_music_mode')
+    ambilight_music = addon.getSetting('ambilight_music')
+
 
     config = {}
     config["api_version"] = addon.getSetting('api_version')
@@ -72,11 +81,17 @@ def ambilight_switch(state):
     config['auth'] = HTTPDigestAuth(config['user'], config['pass'])
 
     if state:
-        config['path'] = available_commands_post["ambilight_video_"+ambilight_mode_setting]['path']
-        config['body'] = available_commands_post["ambilight_video_"+ambilight_mode_setting]['body']
-        pylips.post(config)
-        utils.log("ambilight ON")
+        if AmbilightController.content == "MOVIE":
+            config['path'] = available_commands_post["ambilight_video_"+ambilight_movie_mode]['path']
+            config['body'] = available_commands_post["ambilight_video_"+ambilight_movie_mode]['body']
+            pylips.post(config)
+            utils.log(AmbilightController.content + " ambilight ON")
 
+        if ambilight_music == "True" and AmbilightController.content == "MUSIC":
+            config['path'] = available_commands_post["ambilight_audio_"+ambilight_music_mode]['path']
+            config['body'] = available_commands_post["ambilight_audio_"+ambilight_music_mode]['body']
+            pylips.post(config)
+            utils.log(AmbilightController.content + " ambilight ON")
     else:
         config['path'] = available_commands_post["ambilight_off"]['path']
         config['body'] = available_commands_post["ambilight_off"]['body']
@@ -90,7 +105,7 @@ def ambilight_update(player_state, screensaver_state):
 
     if player_state == "play":
         ambilight_switch(True)
-    elif player_state == "pause" and not screensaver_state and ambilight_screensaver_setting:
+    elif player_state == "pause" and not screensaver_state and ambilight_screensaver_setting == "True":
         ambilight_switch(True)
     else:
         ambilight_switch(False)
@@ -103,6 +118,7 @@ class AmbilightController():
     player_prev_state = "stop"
     screensaver_state = False
     screensaver_prev_state = False
+    content = "MOVIE"
 
     def __init__(self):
         self.player_monitor = PlayerMonitor()

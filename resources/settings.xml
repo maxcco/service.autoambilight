@@ -2,7 +2,9 @@
 <settings>
 	<setting label="Ambilight config" type="lsep"/>
     <setting id="ambilight_screensaver" type="bool" default="true" label="Stop during Screensaver"/>
-    <setting id="ambilight_mode" type="select" label="Mode" default="immersive" values="standard|natural|immersive|vivid|game|comfort|relax" />
+    <setting id="ambilight_movie_mode" type="select" label="Movie mode" default="immersive" values="standard|natural|immersive|vivid|game|comfort|relax" />
+    <setting id="ambilight_music" type="bool" default="False" label="Activate when listening to music"/>
+    <setting id="ambilight_music_mode" type="select" label="Music mode" default="party" values="flash|strobo|party|random|spectrum|vu_meter|adapt_colors|adapt_brightness" />
     <setting label="TV connection config" type="lsep"/>
     <setting id="tv_ipaddress" label="IP TV" type="ipaddress" default="192.168.1.53"/>
     <setting id="user" label="User" type="text" default="3zUPOdpYeocNHzHf"/>

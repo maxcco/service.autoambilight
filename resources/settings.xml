@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<settings>
+	<setting label="Ambilight config" type="lsep"/>
+    <setting id="ambilight_screensaver" type="bool" default="true" label="Stop during Screensaver"/>
+    <setting id="ambilight_mode" type="select" label="Mode" default="immersive" values="standard|natural|immersive|vivid|game|comfort|relax" />
+    <setting label="TV connection config" type="lsep"/>
+    <setting id="tv_ipaddress" label="IP TV" type="ipaddress" default="192.168.1.53"/>
+    <setting id="user" label="User" type="text" default="3zUPOdpYeocNHzHf"/>
+    <setting id="pass" label="Pass" type="text" default="7e6c39a725fdf07892495e228dfd3790e92e4b3ac4828630249f586fc572213b"/>
+    <setting label="Advanced (do not edit should work)" type="lsep"/>
+    <setting id="api_port" label="Api port" type="select" default="1926" values="1925|1926"/>
+    <setting id="api_protocol" label="Api protocol" type="select" default="https://" values="https://|http://" />
+    <setting id="api_version" label="Api version" type="select" default="6" values="1|5|6" />
+</settings>

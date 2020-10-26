@@ -43,7 +43,7 @@ class PlayerMonitor(xbmc.Player):
         self.content = "MOVIE"
         self.state = "STOP"
         self.changed = False
-  
+
     def onPlayBackStarted(self):
         utils.log("play", xbmc.LOGDEBUG)
         if self.isPlayingVideo():
@@ -98,7 +98,7 @@ class AmbilightController():
         del self.player_monitor
 
     def ambilight_update(self):
-       
+
         ambilight_screensaver_setting = self.addon.getSetting('ambilight_screensaver')
 
         if self.player_monitor.state == "PLAY":

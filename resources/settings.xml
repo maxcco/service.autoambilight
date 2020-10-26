@@ -1,16 +1,121 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<settings>
-	<setting label="Ambilight config" type="lsep"/>
-    <setting id="ambilight_screensaver" type="bool" default="true" label="Stop during Screensaver"/>
-    <setting id="ambilight_movie_mode" type="select" label="Movie mode" default="immersive" values="standard|natural|immersive|vivid|game|comfort|relax" />
-    <setting id="ambilight_music" type="bool" default="False" label="Activate when listening to music"/>
-    <setting id="ambilight_music_mode" type="select" label="Music mode" default="party" values="flash|strobo|party|random|spectrum|vu_meter|adapt_colors|adapt_brightness" />
-    <setting label="TV connection config" type="lsep"/>
-    <setting id="tv_ipaddress" label="IP TV" type="ipaddress" default="192.168.1.53"/>
-    <setting id="user" label="User" type="text" default="3zUPOdpYeocNHzHf"/>
-    <setting id="pass" label="Pass" type="text" default="7e6c39a725fdf07892495e228dfd3790e92e4b3ac4828630249f586fc572213b"/>
-    <setting label="Advanced (do not edit should work)" type="lsep"/>
-    <setting id="api_port" label="Api port" type="select" default="1926" values="1925|1926"/>
-    <setting id="api_protocol" label="Api protocol" type="select" default="https://" values="https://|http://" />
-    <setting id="api_version" label="Api version" type="select" default="6" values="1|5|6" />
+<settings version="1">
+    <section id="service.autoambilight">
+        <category id="general" label="General" help="">
+            <group id="1" label="Ambilight config">
+                <setting id="ambilight_screensaver" type="boolean" label="Stop during Screensaver" help="">
+                    <level>0</level>
+                    <default>true</default>
+                    <control type="toggle"/>
+                </setting>   
+                <setting id="ambilight_movie_mode" type="string" label="Movie mode" help="">
+                    <level>0</level>
+                    <default>immersive</default>
+                    <constraints>
+                        <options>
+                            <option>standard</option>
+                            <option>natural</option>
+                            <option>immersive</option>
+                            <option>vivid</option>
+                            <option>game</option>
+                            <option>confort</option>
+                            <option>relax</option>
+                        </options>
+                    </constraints>
+                    <control type="list" format="string">
+                        <heading>Movie mode</heading>
+                    </control>
+                </setting>
+                <setting id="ambilight_music" type="boolean" label="Activate when listening to music" help="">
+                    <level>0</level>
+                    <default>false</default>
+                    <control type="toggle"/>
+                </setting>
+                <setting id="ambilight_music_mode" type="string" label="Music mode" help="">
+                    <level>0</level>
+                    <default>party</default>
+                    <constraints>
+                        <options>
+                            <option>flash</option>
+                            <option>strobo</option>
+                            <option>party</option>
+                            <option>random</option>
+                            <option>spectrum</option>
+                            <option>vu_meter</option>
+                            <option>adapt_colors</option>
+                            <option>adapt_brightness</option>
+                        </options>
+                    </constraints>
+                    <control type="list" format="string">
+                        <heading>Music mode</heading>
+                    </control>
+                </setting>
+            </group>
+            <group id="2" label="TV connection config" >
+                <setting id="tv_ipaddress" type="string" label="IP TV" help="">
+                <level>0</level>
+                <default>192.168.1.53</default>
+                <control type="edit" format="ip">
+                    <heading>IP TV</heading>
+                </control>
+            </setting>
+                <setting id="user" type="string" label="User" help="">
+                    <level>0</level>
+                    <default>3zUPOdpYeocNHzHf</default>
+                    <control type="edit" format="string">
+                        <heading>User</heading>
+                    </control>
+                </setting>
+                <setting id="pass" type="string" label="Pass" help="">
+                    <level>0</level>
+                    <default>7e6c39a725fdf07892495e228dfd3790e92e4b3ac4828630249f586fc572213b</default>
+                    <control type="edit" format="string">
+                        <heading>Pass</heading>
+                    </control>
+                </setting>
+            </group>
+            <group id="3" label="Advanced (do not edit should work)">
+                <setting id="api_port" type="integer" label="Api port" help="">
+                    <level>0</level>
+                    <default>1926</default>
+                    <constraints>
+                        <options>
+                            <option>1925</option>
+                            <option>1926</option>
+                        </options>
+                    </constraints>
+                    <control type="list" format="string">
+                        <heading>Api port</heading>
+                    </control>
+                </setting>
+                <setting id="api_protocol" type="string" label="Api protocol" help="">
+                    <level>0</level>
+                    <default>https://</default>
+                    <constraints>
+                        <options>
+                            <option>https://</option>
+                            <option>http://</option>
+                        </options>
+                    </constraints>
+                    <control type="list" format="string">
+                        <heading>Api protocol</heading>
+                    </control>
+                </setting>
+                <setting id="api_version" type="integer" label="Api version" help="">
+                    <level>0</level>
+                    <default>6</default>
+                    <constraints>
+                        <options>
+                            <option>1</option>
+                            <option>5</option>
+                            <option>6</option>
+                        </options>
+                    </constraints>
+                    <control type="list" format="string">
+                        <heading>Api version</heading>
+                    </control>
+                </setting>
+            </group>
+        </category>
+    </section>
 </settings>
